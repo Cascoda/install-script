@@ -5,8 +5,6 @@
 # Function to die with error
 die() { echo "Error: " "$*" 1>&2 ; exit 1; }
 
-sudo() { echo "Sudo: " "$*" 1>&2 ; }
-
 # Use apt to update and get required packages
 sudo apt update -y || die "sudo apt update"
 sudo apt upgrade -y || die "sudo apt upgrade"
@@ -95,10 +93,10 @@ mkdir build-${MACHINE_NAME}
 cd build-${MACHINE_NAME}
 
 # Configure with cmake
-cmake ../cascoda-sdk
+cmake ../cascoda-sdk || die "Failed to configure"
 
 # Build
-make -j4
+make -j4 || die "Failed to build"
 
 echo "Cascoda binaries built into ./build-${MACHINE_NAME}/bin"
 # Now all of the binaries are installed in ./bin/
