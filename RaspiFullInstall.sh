@@ -98,6 +98,9 @@ cmake ../cascoda-sdk || die "Failed to configure"
 # Build
 make -j4 || die "Failed to build"
 
+# Run unit tests
+make test || die "Unit tests failed"
+
 echo "Cascoda binaries built into ./build-${MACHINE_NAME}/bin"
 # Now all of the binaries are installed in ./bin/
 # and can be run for instance ./bin/serial-adapter

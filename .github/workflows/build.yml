@@ -3,16 +3,26 @@ name: CI
 on: [push]
 
 jobs:
-  build:
-
-    runs-on: ${{ matrix.os }}
-    
-    strategy:
-        matrix:
-            os: [ubuntu-16.04, ubuntu-18.04]
+  build-1:
+    runs-on: ubuntu-16.04
 
     steps:
     - uses: actions/checkout@v1
     - name: Run the build
       run: ./RaspiFullInstall.sh
 
+  build-2:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run the build, getting cmake from apt
+      run: |
+        #On this build, use apt cmake to check that works
+        sudo apt purge --auto-remove cmake
+        wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
+        sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+        sudo apt update
+        ./RaspiFullInstall.sh
+        # Check cmake was installed, this errors if cmake not installed.
+        dpkg -l cmake
