@@ -5,13 +5,32 @@
 # Function to die with error
 die() { echo "Error: " "$*" 1>&2 ; exit 1; }
 
+INSTALL_BRANCH="master"
+
+# Get options passed to script, such as branch ids
+while getopts ":b:" opt; do
+	case ${opt} in
+	b )
+		INSTALL_BRANCH=${OPTARG}
+		;;
+	\? )
+		echo "Invalid option: ${opt} ${OPTARG}" 1>&2
+		echo "Usage: $0 [-b scriptbranch]" 1>&2
+		;;
+	: )
+		echo "Invalid option, -${OPTARG} requires argument" 1>&2
+		;;
+	esac
+done
+
 # First run the full install script (download it if not found)
 MYDIR=$(dirname "$0")
 FULLINSTALL_SCRIPT="${MYDIR}/RaspiFullInstall.sh"
 
 if [ ! -f "${FULLINSTALL_SCRIPT}" ]
 then
-	bash <(curl -Ls https://raw.githubusercontent.com/Cascoda/install-script/master/RaspiFullInstall.sh) || die "Downloading and installing cascoda-sdk"
+	echo "Target script branch is ${INSTALL_BRANCH}"
+	bash <(curl -Ls https://raw.githubusercontent.com/Cascoda/install-script/${INSTALL_BRANCH}/RaspiFullInstall.sh) || die "Downloading and installing cascoda-sdk"
 else
 	# run install script
 	${FULLINSTALL_SCRIPT} || die "Installing cascoda-sdk"
