@@ -65,7 +65,7 @@ cd ot-br-posix
 
 # configure our ncpapp as the socket
 WPANTUND_CONF="/etc/wpantund.conf"
-if grep -Eq '^Config:NCP:SocketPath.*'
+if grep -Eq '^Config:NCP:SocketPath.*' ${WPANTUND_CONF}
 then
 	sudo sed -i '/^Config:NCP:SocketPath/d' "$WPANTUND_CONF"
 fi
