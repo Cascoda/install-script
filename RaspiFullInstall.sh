@@ -61,7 +61,7 @@ if [ "$CMAKE_VER" == apt ]
 then
 	# Install cmake from apt
 	echo "Installing CMake from apt"
-	sudo apt install cmake || die "installing cmake from apt"
+	sudo apt install cmake -y || die "installing cmake from apt"
 	# Install ccmake (we allow this to fail)
 	sudo apt install cmake-curses-gui
 	CMAKE_VER="done"
@@ -82,7 +82,7 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 # Pull if already exists, otherwise clone.
 if [ -d cascoda-sdk/.git ]
 then
-	git pull -C cascoda-sdk || die "Failed to pull"
+	git -C cascoda-sdk pull || die "Failed to pull"
 else
 	git clone https://github.com/Cascoda/cascoda-sdk.git cascoda-sdk || die "Failed to clone"
 fi

@@ -11,11 +11,12 @@ FULLINSTALL_SCRIPT="${MYDIR}/RaspiFullInstall.sh"
 
 if [ ! -f "${FULLINSTALL_SCRIPT}" ]
 then
-	curl https://raw.githubusercontent.com/Cascoda/install-script/master/RaspiFullInstall.sh -o "${FULLINSTALL_SCRIPT}" || die "Downloading install script"
-fi	
+	bash <(curl -Ls https://raw.githubusercontent.com/Cascoda/install-script/master/RaspiFullInstall.sh) || die "Downloading and installing cascoda-sdk"
+else
+	# run install script
+	${FULLINSTALL_SCRIPT} || die "Installing cascoda-sdk"
+fi
 
-# run install script
-${FULLINSTALL_SCRIPT} || die "Installing cascoda-sdk"
 
 # get build dir
 MACHINE_NAME="$(uname -m)"
@@ -34,7 +35,7 @@ echo "Cascoda NCPAPP installed to ${NCPAPP_PATH}."
 # Pull if already exists, otherwise clone.
 if [ -d ot-br-posix/.git ]
 then
-        git pull -C ot-br-posix || die "Failed to pull ot-br-posix"
+        git -C ot-br-posix pull || die "Failed to pull ot-br-posix"
 else
         git clone https://github.com/openthread/ot-br-posix ot-br-posix || die "Failed to clone ot-br-posix"
 fi
