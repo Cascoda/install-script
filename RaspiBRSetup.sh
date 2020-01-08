@@ -63,6 +63,11 @@ cd ot-br-posix
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
 ./script/setup || die "ot-br-posix setup"
 
+# Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
+sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
+echo "enable_uart=1" | sudo tee -a /boot/config.txt
+echo "CASCODA_UART=/dev/serial0,1000000" | sudo tee -a /etc/default/wpantund
+
 # configure our ncpapp as the socket
 WPANTUND_CONF="/etc/wpantund.conf"
 if grep -Eq '^Config:NCP:SocketPath.*' ${WPANTUND_CONF}
