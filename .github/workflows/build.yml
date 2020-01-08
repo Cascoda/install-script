@@ -3,7 +3,7 @@ name: CI
 on: [push]
 
 jobs:
-  build-1:
+  build-withcmake:
     runs-on: ubuntu-16.04
 
     steps:
@@ -11,7 +11,7 @@ jobs:
     - name: Run the build
       run: ./RaspiFullInstall.sh
 
-  build-2:
+  build-aptcmake:
     runs-on: ubuntu-18.04
 
     steps:
@@ -19,8 +19,7 @@ jobs:
     - name: Run the build, getting cmake from apt
       run: |
         #On this build, use apt cmake to check that works
-        echo which cmake
-        which cmake
+        sudo rm /usr/local/bin/cmake*
         sudo apt purge --auto-remove cmake
         wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
         sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
