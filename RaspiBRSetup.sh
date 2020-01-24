@@ -30,7 +30,7 @@ FULLINSTALL_SCRIPT="${MYDIR}/RaspiFullInstall.sh"
 if [ ! -f "${FULLINSTALL_SCRIPT}" ]
 then
 	echo "Target script branch is ${INSTALL_BRANCH}"
-	bash <(curl -Ls https://raw.githubusercontent.com/Cascoda/install-script/${INSTALL_BRANCH}/RaspiFullInstall.sh) || die "Downloading and installing cascoda-sdk"
+	bash <(curl -Ls "https://raw.githubusercontent.com/Cascoda/install-script/${INSTALL_BRANCH}/RaspiFullInstall.sh") || die "Downloading and installing cascoda-sdk"
 else
 	# run install script
 	${FULLINSTALL_SCRIPT} || die "Installing cascoda-sdk"
@@ -59,7 +59,7 @@ else
         git clone https://github.com/openthread/ot-br-posix ot-br-posix || die "Failed to clone ot-br-posix"
 fi
 
-cd ot-br-posix
+cd ot-br-posix || die "cd"
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
 ./script/setup || die "ot-br-posix setup"
 

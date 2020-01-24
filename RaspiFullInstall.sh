@@ -49,11 +49,11 @@ then
 	CMAKE_TARGET_VER=cmake-3.14.2
 	wget https://github.com/Kitware/CMake/releases/download/v3.14.2/${CMAKE_TARGET_VER}.tar.gz || die "downloading cmake"
 	tar -xf ${CMAKE_TARGET_VER}.tar.gz || die "extracting cmake"
-	cd ${CMAKE_TARGET_VER}
+	cd ${CMAKE_TARGET_VER} || die "cd"
 	./bootstrap || die "bootstrap cmake"
 	make -j4 || die "making cmake"
 	sudo make install || die "installing cmake"
-	cd ../
+	cd ../ || die "cd"
 	CMAKE_VER="done"
 fi
 
@@ -67,7 +67,7 @@ then
 	CMAKE_VER="done"
 fi
 
-if [ "$CMAKE_VER" != done ]
+if [ "$CMAKE_VER" != "done" ]
 then
 	die "CMake could not be installed!"
 else
@@ -89,8 +89,8 @@ fi
 
 # Make a build directory and cd in
 MACHINE_NAME="$(uname -m)"
-mkdir build-${MACHINE_NAME}
-cd build-${MACHINE_NAME}
+mkdir "build-${MACHINE_NAME}" || die "mk builddir"
+cd "build-${MACHINE_NAME}" || die "cd"
 
 # Configure with cmake
 cmake ../cascoda-sdk || die "Failed to configure"
