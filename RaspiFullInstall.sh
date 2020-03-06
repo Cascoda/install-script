@@ -89,7 +89,7 @@ fi
 
 # Make a build directory and cd in
 MACHINE_NAME="$(uname -m)"
-mkdir "build-${MACHINE_NAME}" || die "mk builddir"
+mkdir -p "build-${MACHINE_NAME}" || die "mk builddir"
 cd "build-${MACHINE_NAME}" || die "cd"
 
 # Configure with cmake
