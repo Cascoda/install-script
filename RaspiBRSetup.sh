@@ -71,7 +71,7 @@ git -C ot-br-posix checkout ${OT_BR_TAG} || die "Failed to checkout ot-br-posix 
 
 cd ot-br-posix || die "cd"
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
-./script/setup || die "ot-br-posix setup"
+NETWORK_MANAGER=0 ./script/setup || die "ot-br-posix setup"
 
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
 sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
