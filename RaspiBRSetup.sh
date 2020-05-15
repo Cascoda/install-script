@@ -6,16 +6,24 @@
 die() { echo "Error: " "$*" 1>&2 ; exit 1; }
 
 INSTALL_BRANCH="master"
+OT_BR_TAG="a39d800e464582cc07414ea76603ee5442ff8f89" #known working
 
 # Get options passed to script, such as branch ids
-while getopts ":b:" opt; do
+# First ':' is so that missing argument is reported
+# 'b:' accept -b option with required argument
+# 'r:' accept -r option with required argument
+while getopts ":b:r:" opt; do
 	case ${opt} in
 	b )
 		INSTALL_BRANCH=${OPTARG}
 		;;
+	r )
+		OT_BR_TAG=${OPTARG}
+		;;
 	\? )
 		echo "Invalid option: ${opt} ${OPTARG}" 1>&2
-		echo "Usage: $0 [-b scriptbranch]" 1>&2
+		echo "Usage: $0 [-b <install-script branch to clone>]" 1>&2
+		echo "Usage: $0 [-r <ot-br-posix tag to build>]" 1>&2
 		;;
 	: )
 		echo "Invalid option, -${OPTARG} requires argument" 1>&2
@@ -58,6 +66,8 @@ then
 else
         git clone https://github.com/openthread/ot-br-posix ot-br-posix || die "Failed to clone ot-br-posix"
 fi
+
+git -C ot-br-posix checkout ${OT_BR_TAG} || die "Failed to checkout ot-br-posix tag"
 
 cd ot-br-posix || die "cd"
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
