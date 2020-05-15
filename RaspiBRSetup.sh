@@ -73,6 +73,13 @@ cd ot-br-posix || die "cd"
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
 NETWORK_MANAGER=0 ./script/setup || die "ot-br-posix setup"
 
+# Actually enable the nat64 and nat44 services
+TAYGA_DEFAULT="/etc/default/tayga"
+sudo systemctl enable tayga
+sudo systemctl enable otbr-nat44
+sudo sed -i '/^RUN=/d' $TAYGA_DEFAULT
+echo "RUN=\"yes\"" | sudo tee -a $TAYGA_DEFAULT > /dev/null || die "configuring tayga"
+
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
 sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
 echo "enable_uart=1" | sudo tee -a /boot/config.txt
