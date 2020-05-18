@@ -93,7 +93,15 @@ then
 fi
 echo "Config:NCP:SocketPath \"system:${NCPAPP_PATH} 1\"" | sudo tee -a $WPANTUND_CONF > /dev/null || die "configuring ncpapp"
 
-echo "Wifi Access point set up with credentials:"
-sudo nmcli -s c show BorderRouter-AP | grep -E '(wireless\.ssid:|security\.psk:)'
+echo ''
+echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+echo '================ Cascoda Border Router Installation Complete ================'
+echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+echo ''
 
+echo "Web GUI Can be accessed in a browser on the local network with http://<ip-address>"
+# Get all IP addresses with a global scope, except nat64. Use awk to format into a web address.
+ip -o address show scope global | grep -v nat64 | grep inet | awk '{n=split($4,ip, "/");printf "http://%s:80\n", ip[1]}'
+
+echo ""
 echo "Border Router setup complete. Please reboot the pi with 'sudo reboot' and see https://openthread.io/guides/border-router/web-gui for more info."
