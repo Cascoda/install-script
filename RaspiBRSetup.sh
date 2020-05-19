@@ -44,7 +44,6 @@ else
 	${FULLINSTALL_SCRIPT} || die "Installing cascoda-sdk"
 fi
 
-
 # get build dir
 MACHINE_NAME="$(uname -m)"
 BUILDDIR="build-${MACHINE_NAME}"
@@ -72,6 +71,7 @@ git -C ot-br-posix checkout ${OT_BR_TAG} || die "Failed to checkout ot-br-posix 
 cd ot-br-posix || die "cd"
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
 NETWORK_MANAGER=0 ./script/setup || die "ot-br-posix setup"
+cd ../ || die "cd"
 
 # Actually enable the nat64 and nat44 services
 TAYGA_DEFAULT="/etc/default/tayga"
@@ -79,6 +79,18 @@ sudo systemctl enable tayga
 sudo systemctl enable otbr-nat44
 sudo sed -i '/^RUN=/d' $TAYGA_DEFAULT
 echo "RUN=\"yes\"" | sudo tee -a $TAYGA_DEFAULT > /dev/null || die "configuring tayga"
+
+# Configure DNS64 according to the available internet
+DNS64_SCRIPT="${MYDIR}/_dns64_force.sh"
+
+if [ ! -f "${DNS64_SCRIPT}" ]
+then
+	echo "Target script branch is ${INSTALL_BRANCH}"
+	bash <(curl -Ls "https://raw.githubusercontent.com/Cascoda/install-script/${INSTALL_BRANCH}/_dns64_force.sh") || die "Downloading dns script"
+else
+	# run install script
+	${DNS64_SCRIPT} || die "Configuring DNS64"
+fi
 
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
 sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
