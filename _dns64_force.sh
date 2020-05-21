@@ -53,6 +53,9 @@ then
 	die "$NAMED_CONF does not exist"
 fi
 
+# ot-br currently only seems to support NAT64, not native IPv6, so always force DNS64...
+FORCE_DNS64=1
+
 # Apply the necessary configuration, toggling between the following two lines (non-forced & forced DNS64):
 # dns64 64:ff9b::/96 { clients { thread; }; recursive-only yes; };
 # dns64 64:ff9b::/96 { clients { thread; }; recursive-only yes; exclude { any; }; };
