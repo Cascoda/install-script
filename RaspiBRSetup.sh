@@ -48,13 +48,13 @@ fi
 MACHINE_NAME="$(uname -m)"
 BUILDDIR="build-${MACHINE_NAME}"
 
-# make an install directory for the ncpapp, copy it over
+# make an install directory for the ot-ncp, copy it over
 CASCODA_OPT="/opt/cascoda"
-NCPAPP_PATH="${CASCODA_OPT}/ncpapp"
+NCPAPP_PATH="${CASCODA_OPT}/ot-ncp"
 sudo mkdir -p ${CASCODA_OPT} || die "Making install dir"
-sudo cp "${BUILDDIR}/bin/ncpapp" "$NCPAPP_PATH"
+sudo cp "${BUILDDIR}/bin/ot-ncp" "$NCPAPP_PATH" || sudo cp "${BUILDDIR}/bin/ncpapp" "$NCPAPP_PATH" || die "copying ot-ncp"
 
-echo "Cascoda NCPAPP installed to ${NCPAPP_PATH}."
+echo "Cascoda ot-ncp application installed to ${NCPAPP_PATH}."
 
 # Install OpenThread Border Router software
 
@@ -97,13 +97,13 @@ sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
 echo "enable_uart=1" | sudo tee -a /boot/config.txt
 echo "CASCODA_UART=/dev/serial0,1000000" | sudo tee -a /etc/default/wpantund
 
-# configure our ncpapp as the socket
+# configure our ot-ncp app as the socket
 WPANTUND_CONF="/etc/wpantund.conf"
 if grep -Eq '^Config:NCP:SocketPath.*' ${WPANTUND_CONF}
 then
 	sudo sed -i '/^Config:NCP:SocketPath/d' "$WPANTUND_CONF"
 fi
-echo "Config:NCP:SocketPath \"system:${NCPAPP_PATH} 1\"" | sudo tee -a $WPANTUND_CONF > /dev/null || die "configuring ncpapp"
+echo "Config:NCP:SocketPath \"system:${NCPAPP_PATH} 1\"" | sudo tee -a $WPANTUND_CONF > /dev/null || die "configuring ot-ncp app"
 
 echo ''
 echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
