@@ -48,13 +48,13 @@ fi
 MACHINE_NAME="$(uname -m)"
 BUILDDIR="build-${MACHINE_NAME}"
 
-# make an install directory for the ot-ncp, copy it over
+# make an install directory for the ot-ncp-posix, copy it over
 CASCODA_OPT="/opt/cascoda"
-NCPAPP_PATH="${CASCODA_OPT}/ot-ncp"
+NCPAPP_PATH="${CASCODA_OPT}/ot-ncp-posix"
 sudo mkdir -p ${CASCODA_OPT} || die "Making install dir"
-sudo cp "${BUILDDIR}/bin/ot-ncp" "$NCPAPP_PATH" || sudo cp "${BUILDDIR}/bin/ncpapp" "$NCPAPP_PATH" || die "copying ot-ncp"
+sudo cp "${BUILDDIR}/bin/ot-ncp-posix" "$NCPAPP_PATH" || sudo cp "${BUILDDIR}/bin/ncpapp" "$NCPAPP_PATH" || die "copying ot-ncp-posix"
 
-echo "Cascoda ot-ncp application installed to ${NCPAPP_PATH}."
+echo "Cascoda ot-ncp-posix application installed to ${NCPAPP_PATH}."
 
 # Install OpenThread Border Router software
 
@@ -97,13 +97,13 @@ sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
 echo "enable_uart=1" | sudo tee -a /boot/config.txt
 echo "CASCODA_UART=/dev/serial0,1000000" | sudo tee -a /etc/default/wpantund
 
-# configure our ot-ncp app as the socket
+# configure our ot-ncp-posix app as the socket
 WPANTUND_CONF="/etc/wpantund.conf"
 if grep -Eq '^Config:NCP:SocketPath.*' ${WPANTUND_CONF}
 then
 	sudo sed -i '/^Config:NCP:SocketPath/d' "$WPANTUND_CONF"
 fi
-echo "Config:NCP:SocketPath \"system:${NCPAPP_PATH} 1\"" | sudo tee -a $WPANTUND_CONF > /dev/null || die "configuring ot-ncp app"
+echo "Config:NCP:SocketPath \"system:${NCPAPP_PATH} 1\"" | sudo tee -a $WPANTUND_CONF > /dev/null || die "configuring ot-ncp-posix app"
 
 echo ''
 echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
