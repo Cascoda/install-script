@@ -82,7 +82,7 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 # Pull if already exists, otherwise clone.
 if [ -d cascoda-sdk/.git ]
 then
-	git -C cascoda-sdk pull || die "Failed to pull"
+	git -C cascoda-sdk pull || git -C cascoda-sdk fetch || die "Failed to pull"
 else
 	git clone https://github.com/Cascoda/cascoda-sdk.git cascoda-sdk || die "Failed to clone"
 fi

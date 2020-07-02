@@ -61,7 +61,7 @@ echo "Cascoda ot-ncp-posix application installed to ${NCPAPP_PATH}."
 # Pull if already exists, otherwise clone.
 if [ -d ot-br-posix/.git ]
 then
-        git -C ot-br-posix pull || die "Failed to pull ot-br-posix"
+        git -C ot-br-posix pull || git -C ot-br-posix fetch || die "Failed to pull ot-br-posix"
 else
         git clone https://github.com/openthread/ot-br-posix ot-br-posix || die "Failed to clone ot-br-posix"
 fi
