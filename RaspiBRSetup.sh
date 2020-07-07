@@ -48,6 +48,9 @@ fi
 MACHINE_NAME="$(uname -m)"
 BUILDDIR="build-${MACHINE_NAME}"
 
+# Stop wpantund if it is running
+sudo systemctl stop wpantund.service
+
 # make an install directory for the ot-ncp-posix, copy it over
 CASCODA_OPT="/opt/cascoda"
 NCPAPP_PATH="${CASCODA_OPT}/ot-ncp-posix"
