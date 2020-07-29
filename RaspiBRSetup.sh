@@ -7,6 +7,7 @@ die() { echo "Error: " "$*" 1>&2 ; exit 1; }
 
 INSTALL_BRANCH="master"
 OT_BR_TAG="a39d800e464582cc07414ea76603ee5442ff8f89" #known working
+SMCROUTE_TAG="f0ba8b56f7da560ccfc2d607d68d819082fed590"
 
 # Get options passed to script, such as branch ids
 # First ':' is so that missing argument is reported
@@ -44,6 +45,9 @@ else
 	${FULLINSTALL_SCRIPT} || die "Installing cascoda-sdk"
 fi
 
+# Also install hostapd for WiFi AP, and radvd for router advertisement, dnsmasq for running dhcp server
+sudo apt install hostapd radvd dnsmasq -y || die "sudo apt install"
+
 # get build dir
 MACHINE_NAME="$(uname -m)"
 BUILDDIR="build-${MACHINE_NAME}"
@@ -69,7 +73,7 @@ else
         git clone https://github.com/openthread/ot-br-posix ot-br-posix || die "Failed to clone ot-br-posix"
 fi
 
-git -C ot-br-posix checkout ${OT_BR_TAG} || die "Failed to checkout ot-br-posix tag"
+git -C ot-br-posix checkout "${OT_BR_TAG}" || die "Failed to checkout ot-br-posix tag"
 
 cd ot-br-posix || die "cd"
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
@@ -94,6 +98,29 @@ else
 	# run install script
 	${DNS64_SCRIPT} || die "Configuring DNS64"
 fi
+
+# Configure dhcpcd to not run on wlan0
+DHCPCD_CONF='/etc/dhcpcd.conf'
+if ! grep -q 'denyinterfaces wlan0' "${DHCPCD_CONF}"
+	echo 'denyinterfaces wlan0' | sudo tee -a "${DHCPCD_CONF}"
+fi
+
+# Build smcroute, install, configure and rate-limit for multicast forwarding
+# Pull if already exists, otherwise clone.
+if [ -d smcroute/.git ]
+then
+	git -C smcroute pull || git -C smcroute fetch || die "Failed to pull smcroute"
+else
+	git clone https://github.com/troglobit/smcroute.git || die "Failed to clone smcroute"
+fi
+git -C smcroute checkout "${SMCROUTE_TAG}" || die "Failed to checkout smcroute tag"
+
+# Build and install smcroute
+cd smcroute || die "cd"
+./configure --sysconfdir=/etc --runstatedir=/var/run || die "smcroute configure"
+make -j4 || die "smcroute make"
+sudo make install-strip || die "smcroute install"
+cd ../ || die "cd"
 
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
 sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
