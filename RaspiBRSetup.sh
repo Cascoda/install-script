@@ -105,6 +105,20 @@ if ! grep -q 'denyinterfaces wlan0' "${DHCPCD_CONF}"
 	echo 'denyinterfaces wlan0' | sudo tee -a "${DHCPCD_CONF}"
 fi
 
+# Configure static address for wlan0
+sudo mv /etc/network/interfaces.d/wlan0 /etc/network/interfaces.d/wlan0.bak
+sudo cp "${MYDIR}/conf/wlan0" /etc/network/interfaces.d/wlan0 || die "wlan0 conf"
+
+# Configure hostapd
+sudo mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.bak
+sudo cp "${MY_DIR}/hostapd.conf" /etc/hostapd/hostapd.conf || die "hostapd conf"
+sudo systemctl unmask hostapd.service || die "hostapd unmask"
+sudo systemctl enable hostapd.service || die "hostapd enable"
+
+# Configure dnsmasq
+sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.bak
+sudo cp "${MY_DIR}/conf/dnsmasq.conf" /etc/dnsmasq.conf || die "dnsmasq conf"
+
 # Build smcroute, install, configure and rate-limit for multicast forwarding
 # Pull if already exists, otherwise clone.
 if [ -d smcroute/.git ]
