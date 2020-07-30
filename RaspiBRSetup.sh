@@ -45,15 +45,14 @@ else
 	${FULLINSTALL_SCRIPT} || die "Installing cascoda-sdk"
 fi
 
-# Also install hostapd for WiFi AP, and radvd for router advertisement, dnsmasq for running dhcp server
-sudo apt install hostapd radvd dnsmasq -y || die "sudo apt install"
-
 # get build dir
 MACHINE_NAME="$(uname -m)"
 BUILDDIR="build-${MACHINE_NAME}"
 
 # Stop wpantund if it is running
 sudo systemctl stop wpantund.service
+sudo systemctl stop hostapd.service
+sudo systemctl stop dnsmasq.service
 
 # make an install directory for the ot-ncp-posix, copy it over
 CASCODA_OPT="/opt/cascoda"
@@ -102,8 +101,14 @@ fi
 # Configure dhcpcd to not run on wlan0
 DHCPCD_CONF='/etc/dhcpcd.conf'
 if ! grep -q 'denyinterfaces wlan0' "${DHCPCD_CONF}"
+then
 	echo 'denyinterfaces wlan0' | sudo tee -a "${DHCPCD_CONF}"
 fi
+
+# Also install hostapd for WiFi AP, and radvd for router advertisement, dnsmasq for running dhcp server
+# Note: we run it twice and only check for errors the second time, as otherwise it fails by failing to start services
+sudo apt install hostapd radvd dnsmasq -y
+sudo apt install hostapd radvd dnsmasq -y || die "sudo apt install"
 
 # Configure static address for wlan0
 sudo mv /etc/network/interfaces.d/wlan0 /etc/network/interfaces.d/wlan0.bak
@@ -111,13 +116,13 @@ sudo cp "${MYDIR}/conf/wlan0" /etc/network/interfaces.d/wlan0 || die "wlan0 conf
 
 # Configure hostapd
 sudo mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.bak
-sudo cp "${MY_DIR}/hostapd.conf" /etc/hostapd/hostapd.conf || die "hostapd conf"
+sudo cp "${MYDIR}/conf/hostapd.conf" /etc/hostapd/hostapd.conf || die "hostapd conf"
 sudo systemctl unmask hostapd.service || die "hostapd unmask"
 sudo systemctl enable hostapd.service || die "hostapd enable"
 
 # Configure dnsmasq
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.bak
-sudo cp "${MY_DIR}/conf/dnsmasq.conf" /etc/dnsmasq.conf || die "dnsmasq conf"
+sudo cp "${MYDIR}/conf/dnsmasq.conf" /etc/dnsmasq.conf || die "dnsmasq conf"
 
 # Build smcroute, install, configure and rate-limit for multicast forwarding
 # Pull if already exists, otherwise clone.
@@ -128,9 +133,12 @@ else
 	git clone https://github.com/troglobit/smcroute.git || die "Failed to clone smcroute"
 fi
 git -C smcroute checkout "${SMCROUTE_TAG}" || die "Failed to checkout smcroute tag"
+sudo mv /etc/smcroute.conf /etc/smcroute.conf.bak
+sudo cp "${MYDIR}/conf/smcroute.conf" /etc/smcroute.conf
 
 # Build and install smcroute
 cd smcroute || die "cd"
+./autogen.sh
 ./configure --sysconfdir=/etc --runstatedir=/var/run || die "smcroute configure"
 make -j4 || die "smcroute make"
 sudo make install-strip || die "smcroute install"
