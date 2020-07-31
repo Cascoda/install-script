@@ -4,3 +4,7 @@ iface wlan0 inet static
     netmask 255.255.255.0
     network 192.168.12.0
     broadcast 192.168.12.255
+
+iface wlan0 inet6 static
+    address @ULA_PREFIX_WLAN@1
+    netmask 64

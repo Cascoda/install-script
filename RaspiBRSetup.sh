@@ -75,6 +75,8 @@ fi
 git -C ot-br-posix checkout "${OT_BR_TAG}" || die "Failed to checkout ot-br-posix tag"
 
 cd ot-br-posix || die "cd"
+#Undo no-longer-applicable workaround in ot-br bootstrap
+sed -i '/dhcpcd5_6.11.5-1+rpt2_armhf.deb/d' ./script/bootstrap
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
 NETWORK_MANAGER=0 ./script/setup || die "ot-br-posix setup"
 cd ../ || die "cd"
@@ -105,24 +107,44 @@ then
 	echo 'denyinterfaces wlan0' | sudo tee -a "${DHCPCD_CONF}"
 fi
 
+# Generate a ULA prefix
+ULA_PREFIX=$(hexdump -n 5 -e '1/1 "fd%02x:" 2/2 "%04x:" "\n"' /dev/random)
+ULA_PREFIX_SITE="${ULA_PREFIX}:"
+ULA_PREFIX_WLAN="${ULA_PREFIX}1::"
+ULA_PREFIX_WPAN="${ULA_PREFIX}2::"
+ULA_PREFIX_ETH0="${ULA_PREFIX}3::"
+SED_ULA_SUB="
+s/@ULA_PREFIX_SITE@/${ULA_PREFIX_SITE}/
+s/@ULA_PREFIX_WLAN@/${ULA_PREFIX_WLAN}/
+s/@ULA_PREFIX_WPAN@/${ULA_PREFIX_WPAN}/
+s/@ULA_PREFIX_ETH0@/${ULA_PREFIX_ETH0}/
+"
+
 # Also install hostapd for WiFi AP, and radvd for router advertisement, dnsmasq for running dhcp server
 # Note: we run it twice and only check for errors the second time, as otherwise it fails by failing to start services
 sudo apt install hostapd radvd dnsmasq -y
 sudo apt install hostapd radvd dnsmasq -y || die "sudo apt install"
 
-# Configure static address for wlan0
+# Configure static addresses for wlan0
 sudo mv /etc/network/interfaces.d/wlan0 /etc/network/interfaces.d/wlan0.bak
 sudo cp "${MYDIR}/conf/wlan0" /etc/network/interfaces.d/wlan0 || die "wlan0 conf"
+sudo sed -ie "${SED_ULA_SUB}" /etc/network/interfaces.d/wlan0 || die "wlan0 sub"
 
 # Configure hostapd
 sudo mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.bak
 sudo cp "${MYDIR}/conf/hostapd.conf" /etc/hostapd/hostapd.conf || die "hostapd conf"
+sudo sed -ie "${SED_ULA_SUB}" /etc/hostapd/hostapd.conf || die "hostapd sub"
 sudo systemctl unmask hostapd.service || die "hostapd unmask"
 sudo systemctl enable hostapd.service || die "hostapd enable"
 
 # Configure dnsmasq
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.bak
 sudo cp "${MYDIR}/conf/dnsmasq.conf" /etc/dnsmasq.conf || die "dnsmasq conf"
+
+# Configure radvd
+sudo mv /etc/radvd.conf /etc/radvd.conf.bak
+sudo cp "${MYDIR}/conf/radvd.conf" /etc/radvd.conf || die "radvd conf"
+sudo sed -ie "${SED_ULA_SUB}" /etc/radvd.conf || die "radvd sub"
 
 # Build smcroute, install, configure and rate-limit for multicast forwarding
 # Pull if already exists, otherwise clone.
@@ -133,9 +155,6 @@ else
 	git clone https://github.com/troglobit/smcroute.git || die "Failed to clone smcroute"
 fi
 git -C smcroute checkout "${SMCROUTE_TAG}" || die "Failed to checkout smcroute tag"
-sudo mv /etc/smcroute.conf /etc/smcroute.conf.bak
-sudo cp "${MYDIR}/conf/smcroute.conf" /etc/smcroute.conf
-
 # Build and install smcroute
 cd smcroute || die "cd"
 ./autogen.sh
@@ -143,6 +162,16 @@ cd smcroute || die "cd"
 make -j4 || die "smcroute make"
 sudo make install-strip || die "smcroute install"
 cd ../ || die "cd"
+# Configure smcroute
+sudo mv /etc/smcroute.conf /etc/smcroute.conf.bak
+sudo cp "${MYDIR}/conf/smcroute.conf" /etc/smcroute.conf || die "smcroute conf"
+sudo cp "${MYDIR}/conf/smcroute.service" /etc/systemd/smcroute.service || die "smcroute service"
+sudo systemctl enable smcroute.service || die "smcroute enable"
+
+# Configure automatic prefix add
+sudo mv /etc/ncp_state_notifier/dispatcher.d/prefix_add /etc/ncp_state_notifier/dispatcher.d/prefix_add.bak
+sudo cp "${MYDIR}/prefix_add" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add conf"
+sudo sed -ie "${SED_ULA_SUB}" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add sub"
 
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
 sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
@@ -166,6 +195,8 @@ echo ''
 echo "Web GUI Can be accessed in a browser on the local network with http://<ip-address>"
 # Get all IP addresses with a global scope, except nat64. Use awk to format into a web address.
 ip -o address show scope global | grep -v nat64 | grep inet | awk '{n=split($4,ip, "/");printf "http://%s:80\n", ip[1]}'
+echo ""
+echo "WiFi AP up, accessible at SSID 'Cascoda-BR' with password '12345678'"
 
 echo ""
 echo "Border Router setup complete. Please reboot the pi with 'sudo reboot' and see https://openthread.io/guides/border-router/web-gui for more info."
