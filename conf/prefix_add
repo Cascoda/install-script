@@ -4,4 +4,5 @@ STATE=$1
 
 if [ ${STATE} = "associated" ]; then
         sudo wpanctl add-prefix -s -f -a -r -o -P1 @ULA_PREFIX_WPAN@
+	sudo systemctl reload smcroute.service
 fi

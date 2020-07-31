@@ -124,6 +124,7 @@ sudo cp "${MYDIR}/conf/dnsmasq.conf" /etc/dnsmasq.conf || die "dnsmasq conf"
 sudo mv /etc/radvd.conf /etc/radvd.conf.bak
 sudo cp "${MYDIR}/conf/radvd.conf" /etc/radvd.conf || die "radvd conf"
 sudo sed -ie "${SED_ULA_SUB}" /etc/radvd.conf || die "radvd sub"
+sudo systemctl enable radvd.service
 
 # Build smcroute, install, configure and rate-limit for multicast forwarding
 # Pull if already exists, otherwise clone.
@@ -144,12 +145,11 @@ cd ../ || die "cd"
 # Configure smcroute
 sudo mv /etc/smcroute.conf /etc/smcroute.conf.bak
 sudo cp "${MYDIR}/conf/smcroute.conf" /etc/smcroute.conf || die "smcroute conf"
-sudo cp "${MYDIR}/conf/smcroute.service" /etc/systemd/smcroute.service || die "smcroute service"
 sudo systemctl enable smcroute.service || die "smcroute enable"
 
 # Configure automatic prefix add
 sudo mv /etc/ncp_state_notifier/dispatcher.d/prefix_add /etc/ncp_state_notifier/dispatcher.d/prefix_add.bak
-sudo cp "${MYDIR}/prefix_add" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add conf"
+sudo cp "${MYDIR}/conf/prefix_add" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add conf"
 sudo sed -ie "${SED_ULA_SUB}" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add sub"
 
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
