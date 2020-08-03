@@ -107,12 +107,12 @@ sudo apt install hostapd radvd dnsmasq -y || die "sudo apt install"
 # Configure static addresses for wlan0
 sudo mv /etc/network/interfaces.d/wlan0 /etc/network/interfaces.d/wlan0.bak
 sudo cp "${MYDIR}/conf/wlan0" /etc/network/interfaces.d/wlan0 || die "wlan0 conf"
-sudo sed -ie "${SED_ULA_SUB}" /etc/network/interfaces.d/wlan0 || die "wlan0 sub"
+sudo sed -i -e "${SED_ULA_SUB}" /etc/network/interfaces.d/wlan0 || die "wlan0 sub"
 
 # Configure hostapd
 sudo mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.bak
 sudo cp "${MYDIR}/conf/hostapd.conf" /etc/hostapd/hostapd.conf || die "hostapd conf"
-sudo sed -ie "${SED_ULA_SUB}" /etc/hostapd/hostapd.conf || die "hostapd sub"
+sudo sed -i -e "${SED_ULA_SUB}" /etc/hostapd/hostapd.conf || die "hostapd sub"
 sudo systemctl unmask hostapd.service || die "hostapd unmask"
 sudo systemctl enable hostapd.service || die "hostapd enable"
 
@@ -123,7 +123,7 @@ sudo cp "${MYDIR}/conf/dnsmasq.conf" /etc/dnsmasq.conf || die "dnsmasq conf"
 # Configure radvd
 sudo mv /etc/radvd.conf /etc/radvd.conf.bak
 sudo cp "${MYDIR}/conf/radvd.conf" /etc/radvd.conf || die "radvd conf"
-sudo sed -ie "${SED_ULA_SUB}" /etc/radvd.conf || die "radvd sub"
+sudo sed -i -e "${SED_ULA_SUB}" /etc/radvd.conf || die "radvd sub"
 sudo systemctl enable radvd.service
 
 # Build smcroute, install, configure and rate-limit for multicast forwarding
@@ -150,7 +150,8 @@ sudo systemctl enable smcroute.service || die "smcroute enable"
 # Configure automatic prefix add
 sudo mv /etc/ncp_state_notifier/dispatcher.d/prefix_add /etc/ncp_state_notifier/dispatcher.d/prefix_add.bak
 sudo cp "${MYDIR}/conf/prefix_add" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add conf"
-sudo sed -ie "${SED_ULA_SUB}" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add sub"
+sudo sed -i -e "${SED_ULA_SUB}" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add sub"
+sudo chmod a+x /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add chmod"
 
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
 sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
