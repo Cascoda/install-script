@@ -26,6 +26,7 @@ sudo apt update -y || die "sudo apt update"
 sudo apt upgrade -y || die "sudo apt upgrade"
 
 # Clone the install-script repo and run the BR setup script
+MYDIR=$(dirname "$0")
 BR_SCRIPT="${MYDIR}/_BRSetup.sh"
 
 if [ ! -f "${BR_SCRIPT}" ]

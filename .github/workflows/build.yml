@@ -9,7 +9,12 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Run the build
-      run: ./RaspiFullInstall.sh
+      run: |
+        sudo apt update
+        sudo apt remove -y msodbcsql17 mysql-server mysql-server-5.7
+        ./RaspiFullInstall.sh
+      env:
+        ACCEPT_EULA: Y
 
   build-aptcmake:
     runs-on: ubuntu-18.04
@@ -24,6 +29,9 @@ jobs:
         wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
         sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
         sudo apt update
+        sudo apt remove -y msodbcsql17 mysql-server mysql-server-5.7
         ./RaspiFullInstall.sh
         # Check cmake was installed, this errors if cmake not installed.
         dpkg -l cmake
+      env:
+        ACCEPT_EULA: Y
