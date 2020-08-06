@@ -62,10 +62,13 @@ FORCE_DNS64=1
 if [ "$FORCE_DNS64" ]
 then
 	echo "Using forced DNS64"
-	sudo sed -Ei 's/dns64 ([^\s]+) \{ clients \{ thread; \}; recursive-only yes; \};/dns64 \1 { clients { thread; }; recursive-only yes; exclude { any; }; };/g' $NAMED_CONF
-	grep -q 'dns64.*exclude { any; }' $NAMED_CONF || die "Failed to force DNS64"
+	sudo sed -Ei 's/dns64 ([^\s]+) \{ clients \{ thread; \}; recursive-only yes; \};/dns64 \1 { clients { thread; }; recursive-only yes; exclude { any; }; };/g' "$NAMED_CONF"
+	grep -q 'dns64.*exclude { any; }' "$NAMED_CONF" || die "Failed to force DNS64"
 else
 	echo "Using default DNS64"
-	sudo sed -Ei 's/dns64 ([^\s]+) \{ clients \{ thread; \}; recursive-only yes; exclude \{ any; \}; \};/dns64 \1 { clients { thread; }; recursive-only yes; };/g' $NAMED_CONF
-	grep -q 'dns64.*exclude { any; }' $NAMED_CONF && die "Failed to unforce DNS64"
+	sudo sed -Ei 's/dns64 ([^\s]+) \{ clients \{ thread; \}; recursive-only yes; exclude \{ any; \}; \};/dns64 \1 { clients { thread; }; recursive-only yes; };/g' "$NAMED_CONF"
+	grep -q 'dns64.*exclude { any; }' "$NAMED_CONF" && die "Failed to unforce DNS64"
 fi
+
+# Also enable DNS recursion for all interfaces (as we also provide DNS on wlan0)
+sudo sed -Ei 's/[^#]allow-recursion/#allow-recursion/' "$NAMED_CONF"
