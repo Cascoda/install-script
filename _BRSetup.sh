@@ -60,7 +60,7 @@ else
         git clone https://github.com/cascoda/ot-br-posix ot-br-posix || die "Failed to clone ot-br-posix"
 fi
 
-git -C ot-br-posix checkout "${OT_BR_TAG}" || die "Failed to checkout ot-br-posix tag"
+git -C ot-br-posix checkout "${OT_BR_TAG}" -f || die "Failed to checkout ot-br-posix tag"
 
 cd ot-br-posix || die "cd"
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
