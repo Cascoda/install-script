@@ -5,7 +5,7 @@
 # Function to die with error
 die() { echo "Error: " "$*" 1>&2 ; exit 1; }
 
-OT_BR_TAG="a39d800e464582cc07414ea76603ee5442ff8f89" #known working
+OT_BR_TAG="e7b3f6b694e3aed832ae66c8f36581103d8ee70c" #known working
 SMCROUTE_TAG="f0ba8b56f7da560ccfc2d607d68d819082fed590"
 
 # Get options passed to script, such as branch ids
@@ -54,16 +54,15 @@ echo "Cascoda ot-ncp-posix application installed to ${NCPAPP_PATH}."
 # Pull if already exists, otherwise clone.
 if [ -d ot-br-posix/.git ]
 then
-        git -C ot-br-posix pull || git -C ot-br-posix fetch || die "Failed to pull ot-br-posix"
+        git -C ot-br-posix remote set-url origin https://github.com/cascoda/ot-br-posix || die "Failed to set new remote URL"
+        git -C ot-br-posix fetch || die "Failed to pull ot-br-posix"
 else
-        git clone https://github.com/openthread/ot-br-posix ot-br-posix || die "Failed to clone ot-br-posix"
+        git clone https://github.com/cascoda/ot-br-posix ot-br-posix || die "Failed to clone ot-br-posix"
 fi
 
-git -C ot-br-posix checkout "${OT_BR_TAG}" || die "Failed to checkout ot-br-posix tag"
+git -C ot-br-posix checkout "${OT_BR_TAG}" -f || die "Failed to checkout ot-br-posix tag"
 
 cd ot-br-posix || die "cd"
-#Undo no-longer-applicable workaround in ot-br bootstrap
-sed -i '/dhcpcd5_6.11.5-1+rpt2_armhf.deb/c\sudo apt install dhcpcd5 -y' ./script/bootstrap
 ./script/bootstrap || die "Bootstrapping ot-br-posix"
 NETWORK_MANAGER=0 ./script/setup || die "ot-br-posix setup"
 cd ../ || die "cd"
