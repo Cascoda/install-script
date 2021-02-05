@@ -74,6 +74,9 @@ sudo systemctl enable otbr-nat44
 sudo sed -i '/^RUN=/d' $TAYGA_DEFAULT
 echo "RUN=\"yes\"" | sudo tee -a $TAYGA_DEFAULT > /dev/null || die "configuring tayga"
 
+# Disable NetworkManager, as it breaks some of the manual config
+sudo systemctl disable NetworkManager
+
 # Configure DNS64 according to the available internet
 DNS64_SCRIPT="${MYDIR}/_dns64_force.sh"
 ${DNS64_SCRIPT} || die "Configuring DNS64"
