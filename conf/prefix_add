@@ -3,7 +3,7 @@
 STATE=$1
 
 if [ ${STATE} = "associated" ]; then
-    sudo wpanctl add-prefix -s -f -a -r -o -P1 fdbe:7313:14d7:2::
+    sudo wpanctl add-prefix -s -f -a -r -o -P1 @ULA_PREFIX_WPAN@
     # Start the multicast forwarding service, and update iptables to stop link locals being forwarded
     sudo systemctl restart smcroute.service
     sudo ip6tables -C FORWARD -o wpan0 -s fe80::/10 -j DROP || sudo ip6tables -A FORWARD -o wpan0 -s fe80::/10 -j DROP
