@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Restart the border agent after first associated to (quick) fix what looks like a race
+# with avahi daemon.
+
+STATE=$1
+
+if [ ${STATE} = "associated" ]; then
+    sudo systemctl restart otbr-agent.service
+fi
