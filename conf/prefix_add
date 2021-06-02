@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# This script adds the off-mesh prefix to the Thread network, and sets up the
+# relevant rules and daemons on the posix side to enable multicast forwarding.
+
 STATE=$1
 
 if [ ${STATE} = "associated" ]; then

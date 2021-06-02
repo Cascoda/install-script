@@ -155,6 +155,11 @@ sudo cp "${MYDIR}/conf/prefix_add" /etc/ncp_state_notifier/dispatcher.d/prefix_a
 sudo sed -i -e "${SED_ULA_SUB}" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add sub"
 sudo chmod a+x /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add chmod"
 
+# Configure ot border agent reloader
+sudo mv /etc/ncp_state_notifier/dispatcher.d/agent_reloader /etc/ncp_state_notifier/dispatcher.d/agent_reloader.bak
+sudo cp "${MYDIR}/conf/agent_reloader" /etc/ncp_state_notifier/dispatcher.d/agent_reloader || die "agent_reloader conf"
+sudo chmod a+x /etc/ncp_state_notifier/dispatcher.d/agent_reloader || die "agent_reloader chmod"
+
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
 sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
 echo "enable_uart=1" | sudo tee -a /boot/config.txt
