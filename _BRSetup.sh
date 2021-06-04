@@ -5,7 +5,7 @@
 # Function to die with error
 die() { echo "Error: " "$*" 1>&2 ; exit 1; }
 
-OT_BR_TAG="5759f94b4239ec50ab7bafe38fd98114545ebdbc" #known working
+OT_BR_TAG="a784a1957098be4bfd4cf3c048cb8b958f533917" #known working
 SMCROUTE_TAG="f0ba8b56f7da560ccfc2d607d68d819082fed590"
 
 # Get options passed to script, such as branch ids
@@ -154,11 +154,6 @@ sudo mv /etc/ncp_state_notifier/dispatcher.d/prefix_add /etc/ncp_state_notifier/
 sudo cp "${MYDIR}/conf/prefix_add" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add conf"
 sudo sed -i -e "${SED_ULA_SUB}" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add sub"
 sudo chmod a+x /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add chmod"
-
-# Configure ot border agent reloader
-sudo mv /etc/ncp_state_notifier/dispatcher.d/agent_reloader /etc/ncp_state_notifier/dispatcher.d/agent_reloader.bak
-sudo cp "${MYDIR}/conf/agent_reloader" /etc/ncp_state_notifier/dispatcher.d/agent_reloader || die "agent_reloader conf"
-sudo chmod a+x /etc/ncp_state_notifier/dispatcher.d/agent_reloader || die "agent_reloader chmod"
 
 # Disable raspberry pi console on UART, enable uart, add required environment variable to use pi hat
 sudo sed -i 's/console=serial0,115200 //g' /boot/cmdline.txt
