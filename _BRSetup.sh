@@ -168,6 +168,12 @@ then
 fi
 echo "Config:NCP:SocketPath \"system:${NCPAPP_PATH} 1\"" | sudo tee -a $WPANTUND_CONF > /dev/null || die "configuring ot-ncp-posix app"
 
+# Add the welcome script
+cp "${MYDIR}/conf/cascoda_welcome.sh" ~/.cascoda_welcome.sh
+if ! grep -q "cascoda_welcome.sh" ~/.bashrc ; then
+	echo "~/.cascoda_welcome.sh" >> ~/.bashrc
+fi
+
 echo ''
 echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 echo '================ Cascoda Border Router Installation Complete ================'
