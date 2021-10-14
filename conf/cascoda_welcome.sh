@@ -1,14 +1,18 @@
 #!/bin/bash
 
+# Function to die with error
+die() { echo "Error: " "$*" 1>&2 ; exit 1; }
+
 # Randomize parameters if cascoda_randomize file exists
 if test -f ~/.cascoda_randomize ; then
         # Stop wpantund if it is running
+        echo "Please wait, performing initial setup..."
         sudo systemctl stop wpantund.service
         sudo systemctl stop hostapd.service
         sudo systemctl stop dnsmasq.service
 
         #TODO: Make MYDIR work on setups where install_script may exist elsewhere.
-        MYDIR=~/install_script
+        MYDIR=~/install-script
         # Generate a ULA prefix
         ULA_PREFIX=$(hexdump -n 5 -e '1/1 "fd%02x:" 2/2 "%04x:" "\n"' /dev/random)
         ULA_PREFIX_SITE="${ULA_PREFIX}:"
