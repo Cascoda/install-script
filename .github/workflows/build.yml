@@ -3,19 +3,6 @@ name: CI
 on: [push]
 
 jobs:
-  build-withcmake:
-    runs-on: ubuntu-16.04
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Run the build
-      run: |
-        sudo apt update
-        sudo apt remove -y msodbcsql17 mysql-server mysql-server-5.7
-        ./RaspiFullInstall.sh
-      env:
-        ACCEPT_EULA: Y
-
   build-aptcmake:
     runs-on: ubuntu-18.04
 
