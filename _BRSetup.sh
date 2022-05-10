@@ -5,7 +5,7 @@
 # Function to die with error
 die() { echo "Error: " "$*" 1>&2 ; exit 1; }
 
-OT_BR_TAG="a784a1957098be4bfd4cf3c048cb8b958f533917" #known working
+OT_BR_TAG="7dd6252d6e9adc3f5c759bc652e4b746a2b463b6" #known working
 SMCROUTE_TAG="f0ba8b56f7da560ccfc2d607d68d819082fed590"
 
 # Get options passed to script, such as branch ids
