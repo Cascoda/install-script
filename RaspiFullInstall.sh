@@ -80,11 +80,17 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 
 # Clone the Cascoda sdk, set up build dir, configure
 # Pull if already exists, otherwise clone.
-if [ -d cascoda-sdk/.git ]
+if [ -d cascoda-sdk-priv/.git ]
 then
-	git -C cascoda-sdk pull || git -C cascoda-sdk fetch || die "Failed to pull"
+	git -C cascoda-sdk-priv pull || git -C cascoda-sdk-priv fetch || die "Failed to pull"
+	cd cascoda-sdk-priv
+	git checkout frank-openthread
+	cd ../
 else
-	git clone https://github.com/Cascoda/cascoda-sdk.git cascoda-sdk || die "Failed to clone"
+	git clone https://github.com/Cascoda/cascoda-sdk-priv.git cascoda-sdk-priv || die "Failed to clone"
+	cd cascoda-sdk-priv
+	git checkout frank-openthread
+	cd ../
 fi
 
 # Make a build directory and cd in
@@ -93,7 +99,7 @@ mkdir -p "build-${MACHINE_NAME}" || die "mk builddir"
 cd "build-${MACHINE_NAME}" || die "cd"
 
 # Configure with cmake
-cmake ../cascoda-sdk || die "Failed to configure"
+cmake -D CASCODA_OPENTHREAD_DEV=ON -D OT_PLATFORM=external -D OT_THREAD_VERSION=1.1 -D OT_EXCLUDE_TCPLP_LIB=ON -D OT_MAC_FILTER=OFF ../cascoda-sdk-priv || die "Failed to configure"
 
 # Build
 make -j4 || die "Failed to build"
