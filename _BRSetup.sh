@@ -67,20 +67,6 @@ cd ot-br-posix || die "cd"
 NETWORK_MANAGER=0 ./script/setup || die "ot-br-posix setup"
 cd ../ || die "cd"
 
-# Actually enable the nat64 and nat44 services
-TAYGA_DEFAULT="/etc/default/tayga"
-sudo systemctl enable tayga
-sudo systemctl enable otbr-nat44
-sudo sed -i '/^RUN=/d' $TAYGA_DEFAULT
-echo "RUN=\"yes\"" | sudo tee -a $TAYGA_DEFAULT > /dev/null || die "configuring tayga"
-
-# Disable NetworkManager, as it breaks some of the manual config
-sudo systemctl disable NetworkManager
-
-# Configure DNS64 according to the available internet
-DNS64_SCRIPT="${MYDIR}/_dns64_force.sh"
-${DNS64_SCRIPT} || die "Configuring DNS64"
-
 # Configure dhcpcd to not run on wlan0
 DHCPCD_CONF='/etc/dhcpcd.conf'
 if ! grep -q 'denyinterfaces wlan0' "${DHCPCD_CONF}"
@@ -150,6 +136,7 @@ sudo cp "${MYDIR}/conf/smcroute.conf" /etc/smcroute.conf || die "smcroute conf"
 sudo systemctl enable smcroute.service || die "smcroute enable"
 
 # Configure automatic prefix add
+sudo mkdir -p /etc/ncp_state_notifier/dispatcher.d/
 sudo mv /etc/ncp_state_notifier/dispatcher.d/prefix_add /etc/ncp_state_notifier/dispatcher.d/prefix_add.bak
 sudo cp "${MYDIR}/conf/prefix_add" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add conf"
 sudo sed -i -e "${SED_ULA_SUB}" /etc/ncp_state_notifier/dispatcher.d/prefix_add || die "prefix_add sub"
