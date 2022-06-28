@@ -99,7 +99,8 @@ mkdir -p "build-${MACHINE_NAME}" || die "mk builddir"
 cd "build-${MACHINE_NAME}" || die "cd"
 
 # Configure with cmake
-cmake -D CASCODA_OPENTHREAD_DEV=ON -D OT_PLATFORM=external -D OT_THREAD_VERSION=1.1 -D OT_EXCLUDE_TCPLP_LIB=ON -D OT_MAC_FILTER=OFF ../cascoda-sdk-priv || die "Failed to configure"
+cmake -D CASCODA_OPENTHREAD_DEV=ON -D OT_PLATFORM=external -D OT_THREAD_VERSION=1.1 -D OT_EXCLUDE_TCPLP_LIB=ON -D OT_MAC_FILTER=OFF ../cascoda-sdk-priv
+cmake . || die "Failed to configure"
 
 # Build
 make -j4 || die "Failed to build"
